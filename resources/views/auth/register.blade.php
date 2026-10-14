@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Aplikasi Sertifikasi</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container min-vh-100 d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-sm p-4" style="width: 100%; max-width: 450px;">
+            <h3 class="text-center mb-2">Buat Akun</h3>
+            <p class="text-center text-muted mb-4">Daftar sebagai pengguna aplikasi</p>
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('register.process') }}" method="POST">
+                @csrf
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nama lengkap</label>
+                    <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" minlength="8" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password_confirmation" class="form-label">
+                        Konfirmasi password
+                    </label>
+                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control"
+                        minlength="8" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Daftar
+                </button>
+            </form>
+
+            <p class="text-center mt-3 mb-0">
+                Sudah punya akun?
+                <a href="{{ route('login') }}">Login</a>
+            </p>
+            <a href="{{ route('welcome') }}" class="btn btn-outline-secondary w-100 fw-bold">
+                &larr; Kembali
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>
