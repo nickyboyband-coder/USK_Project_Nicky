@@ -22,14 +22,14 @@
     <div class="card-body">
         <table class="table table-borderless mb-0">
             <tr><th width="200">Nama</th><td>{{ $user->name }}</td></tr>
-            <tr><th>NIK</th><td>{{ $user->nik ?? '-' }}</td></tr>
+            <tr><th>NIK</th><td>{{ $user->peserta?->nik ?? '-' }}</td></tr>
             <tr><th>Email</th><td>{{ $user->email }}</td></tr>
-            <tr><th>Nomor Telepon</th><td>{{ $user->no_hp ?? '-' }}</td></tr>
+            <tr><th>Nomor Telepon</th><td>{{ $user->peserta?->no_hp ?? '-' }}</td></tr>
             <tr>
                 <th>Skema Sertifikasi</th>
                 <td>
-                    @if ($user->skema)
-                        {{ $user->skema->kode_skema }} - {{ $user->skema->nama_skema }}
+                    @if ($user->peserta?->skema)
+                        {{ $user->peserta->skema->kode_skema }} - {{ $user->peserta->skema->nama_skema }}
                     @else
                         -
                     @endif
@@ -39,4 +39,4 @@
     </div>
 </div>
 
-@endsection 
+@endsection

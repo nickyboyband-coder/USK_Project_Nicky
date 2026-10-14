@@ -57,7 +57,7 @@
                 @if (auth()->user()->role === 'admin')
                     <li class="nav-item">
                         <a href="{{ route('peserta.index') }}" class="nav-link text-light px-3 py-2 rounded">
-                            <i class="bi bi-people me-1"></i> Data User
+                            <i class="bi bi-people me-1"></i> Data Peserta
                         </a>
                     </li>
                     <li class="nav-item">

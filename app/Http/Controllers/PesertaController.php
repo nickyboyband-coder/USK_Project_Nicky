@@ -5,22 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\SkemaSertifikasi;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class PesertaController extends Controller
 {
-    // Daftar semua user (akun admin tidak ikut ditampilkan)
     public function index(Request $request)
     {
         $keyword = $request->keyword;
 
-        $users = User::with('skema')
+        $users = User::with('peserta.skema')
             ->where('role', 'user')
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%")
-                        ->orWhere('nik', 'like', "%{$keyword}%")
-                        ->orWhere('email', 'like', "%{$keyword}%");
+                        ->orWhere('email', 'like', "%{$keyword}%")
+                        ->orWhereHas('peserta', fn ($p) => $p->where('nik', 'like', "%{$keyword}%"));
                 });
             })
             ->latest()
@@ -33,7 +33,7 @@ class PesertaController extends Controller
     public function show(User $user)
     {
         $this->ensureParticipant($user);
-        $user->load('skema');
+        $user->load('peserta.skema');
 
         return view('peserta.show', compact('user'));
     }
@@ -41,6 +41,7 @@ class PesertaController extends Controller
     public function edit(User $user)
     {
         $this->ensureParticipant($user);
+        $user->load('peserta');
 
         return view('peserta.edit', [
             'user' => $user,
@@ -54,12 +55,13 @@ class PesertaController extends Controller
     public function update(Request $request, User $user)
     {
         $this->ensureParticipant($user);
+        $user->load('peserta');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'nik' => ['required', 'digits:16', Rule::unique('users', 'nik')->ignore($user->id)],
-            'no_hp' => 'required|digits_between:10,15',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'nik' => ['required', 'digits:16', Rule::unique('peserta', 'nik')->ignore($user->peserta?->id)],
+            'no_hp' => 'required|digits_between:10,15',
             'skema_id' => ['required', Rule::exists('skema', 'id')],
         ], [
             'name.required' => 'Nama wajib diisi.',
@@ -70,13 +72,25 @@ class PesertaController extends Controller
             'skema_id.exists' => 'Skema sertifikasi tidak ditemukan.',
         ]);
 
-        $user->update($validated);
+        DB::transaction(function () use ($user, $validated) {
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+
+            $user->peserta()->updateOrCreate([], [
+                'nik' => $validated['nik'],
+                'no_hp' => $validated['no_hp'],
+                'skema_id' => $validated['skema_id'],
+            ]);
+        });
 
         return redirect()
             ->route('peserta.index')
             ->with('success', 'Data user berhasil diperbarui.');
     }
 
+    // Hapus user, data peserta ikut terhapus otomatis (cascadeOnDelete)
     public function destroy(User $user)
     {
         $this->ensureParticipant($user);
@@ -88,7 +102,6 @@ class PesertaController extends Controller
             ->with('success', 'User berhasil dihapus.');
     }
 
-    // Admin hanya boleh mengelola akun ber-role 'user'
     private function ensureParticipant(User $user): void
     {
         abort_if($user->role !== 'user', 404);

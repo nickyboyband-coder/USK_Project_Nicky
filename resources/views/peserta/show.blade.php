@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Detail User')
+@section('title', 'Detail Peserta')
 
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <h3 class="fw-bold mb-4">Detail User</h3>
+        <h3 class="fw-bold mb-4">Detail Peserta</h3>
 
         <table class="table table-bordered">
-            <tr><th width="200">NIK</th><td>{{ $user->nik ?? '-' }}</td></tr>
+            <tr><th width="200">NIK</th><td>{{ $user->peserta?->nik ?? '-' }}</td></tr>
             <tr><th>Nama</th><td>{{ $user->name }}</td></tr>
             <tr><th>Email</th><td>{{ $user->email }}</td></tr>
-            <tr><th>Nomor Telepon</th><td>{{ $user->no_hp ?? '-' }}</td></tr>
+            <tr><th>Nomor Telepon</th><td>{{ $user->peserta?->no_hp ?? '-' }}</td></tr>
             <tr>
                 <th>Skema Sertifikasi</th>
                 <td>
-                    @if ($user->skema)
-                        {{ $user->skema->kode_skema }} - {{ $user->skema->nama_skema }}
+                    @if ($user->peserta?->skema)
+                        {{ $user->peserta->skema->kode_skema }} - {{ $user->peserta->skema->nama_skema }}
                     @else
                         -
                     @endif

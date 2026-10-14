@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Data User')
+@section('title', 'Data Peserta')
 
 @section('content')
 <div class="container-fluid">
     <div class="mb-4">
-        <h3 class="fw-bold mb-1">Data User</h3>
-        <p class="text-muted mb-0">Semua user yang terdaftar sebagai peserta sertifikasi.</p>
+        <h3 class="fw-bold mb-1">Data Peserta</h3>
+        <p class="text-muted mb-0">Semua peserta yang terdaftar sebagai peserta sertifikasi.</p>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -38,11 +38,11 @@
                         @forelse ($users as $item)
                             <tr>
                                 <td>{{ $users->firstItem() + $loop->index }}</td>
-                                <td>{{ $item->nik ?? '-' }}</td>
+                                <td>{{ $item->peserta?->nik ?? '-' }}</td>
                                 <td>{{ $item->name }}</td>
                                 <td>{{ $item->email }}</td>
-                                <td>{{ $item->no_hp ?? '-' }}</td>
-                                <td>{{ $item->skema->nama_skema ?? '-' }}</td>
+                                <td>{{ $item->peserta?->no_hp ?? '-' }}</td>
+                                <td>{{ $item->peserta?->skema?->nama_skema ?? '-' }}</td>
                                 <td>
                                     <div class="d-flex gap-1">
                                         <a href="{{ route('peserta.show', $item) }}"
@@ -50,7 +50,7 @@
                                         <a href="{{ route('peserta.edit', $item) }}"
                                            class="btn btn-warning btn-sm">Edit</a>
                                         <form action="{{ route('peserta.destroy', $item) }}" method="POST"
-                                              onsubmit="return confirm('Yakin ingin menghapus user ini?')">
+                                              onsubmit="return confirm('Yakin ingin menghapus peserta ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
@@ -60,7 +60,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-4">Belum ada user terdaftar.</td>
+                                <td colspan="7" class="text-center py-4">Belum ada peserta terdaftar.</td>
                             </tr>
                         @endforelse
                     </tbody>

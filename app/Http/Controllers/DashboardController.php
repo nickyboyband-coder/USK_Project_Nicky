@@ -6,13 +6,14 @@ use App\Models\SkemaSertifikasi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = User::with('skema')->findOrFail(Auth::id());
+        $user = User::with('peserta.skema')->findOrFail(Auth::id());
 
         if ($user->isAdmin()) {
             $totalUser = User::where('role', 'user')->count();
@@ -28,7 +29,7 @@ class DashboardController extends Controller
     public function editProfil()
     {
         return view('peserta.edit', [
-            'user' => User::findOrFail(Auth::id()),
+            'user' => User::with('peserta')->findOrFail(Auth::id()),
             'skema' => SkemaSertifikasi::orderBy('nama_skema')->get(),
             'action' => route('user.profil.update'),
             'back' => route('dashboard'),
@@ -39,13 +40,13 @@ class DashboardController extends Controller
     // Simpan perubahan data milik sendiri (user)
     public function updateProfil(Request $request)
     {
-        $user = User::findOrFail(Auth::id());
+        $user = User::with('peserta')->findOrFail(Auth::id());
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'nik' => ['required', 'digits:16', Rule::unique('users', 'nik')->ignore($user->id)],
-            'no_hp' => 'required|digits_between:10,15',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'nik' => ['required', 'digits:16', Rule::unique('peserta', 'nik')->ignore($user->peserta?->id)],
+            'no_hp' => 'required|digits_between:10,15',
             'skema_id' => ['required', Rule::exists('skema', 'id')],
             'password' => 'nullable|string|min:8|confirmed',
         ], [
@@ -59,11 +60,20 @@ class DashboardController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        if (empty($validated['password'])) {
-            unset($validated['password']);
+        $akun = ['name' => $validated['name'], 'email' => $validated['email']];
+        if (!empty($validated['password'])) {
+            $akun['password'] = $validated['password'];
         }
 
-        $user->update($validated);
+        DB::transaction(function () use ($user, $akun, $validated) {
+            $user->update($akun);
+
+            $user->peserta()->updateOrCreate([], [
+                'nik' => $validated['nik'],
+                'no_hp' => $validated['no_hp'],
+                'skema_id' => $validated['skema_id'],
+            ]);
+        });
 
         return redirect()
             ->route('dashboard')

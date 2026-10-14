@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -65,12 +66,17 @@ class AuthController extends Controller
         'password.confirmed' => 'Konfirmasi password tidak cocok.',
     ]);
 
-    User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => Hash::make($validated['password']),
-        'role' => 'user',
-    ]);
+    // Akun masuk ke users, data sertifikasi masuk ke peserta (user_id otomatis terisi)
+    DB::transaction(function () use ($validated) {
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'user',
+        ]);
+
+        
+    });
 
     return redirect()
         ->route('login')

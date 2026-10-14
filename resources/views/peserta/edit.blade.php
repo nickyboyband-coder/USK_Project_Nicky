@@ -27,14 +27,14 @@
                 <div class="col-md-6 mb-3">
                     <label for="nik" class="form-label">NIK</label>
                     <input type="text" name="nik" id="nik" class="form-control"
-                           value="{{ old('nik', $user->nik) }}" inputmode="numeric"
+                           value="{{ old('nik', $user->peserta?->nik) }}" inputmode="numeric"
                            pattern="[0-9]{16}" maxlength="16" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="no_hp" class="form-label">Nomor telepon</label>
                     <input type="text" name="no_hp" id="no_hp" class="form-control"
-                           value="{{ old('no_hp', $user->no_hp) }}" inputmode="numeric"
+                           value="{{ old('no_hp', $user->peserta?->no_hp) }}" inputmode="numeric"
                            pattern="[0-9]{10,15}" maxlength="15" required>
                 </div>
 
@@ -43,7 +43,8 @@
                     <select name="skema_id" id="skema_id" class="form-select" required>
                         <option value="">-- Pilih skema --</option>
                         @foreach ($skema as $item)
-                            <option value="{{ $item->id }}" @selected(old('skema_id', $user->skema_id) == $item->id)>
+                            <option value="{{ $item->id }}"
+                                    @selected(old('skema_id', $user->peserta?->skema_id) == $item->id)>
                                 {{ $item->kode_skema }} - {{ $item->nama_skema }}
                             </option>
                         @endforeach

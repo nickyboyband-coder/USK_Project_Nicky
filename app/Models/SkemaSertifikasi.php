@@ -9,15 +9,10 @@ class SkemaSertifikasi extends Model
 {
     protected $table = 'skema';
 
-    protected $fillable = [
-        'kode_skema',
-        'nama_skema',
-        'deskripsi',
-    ];
+    protected $fillable = ['kode_skema', 'nama_skema', 'deskripsi'];
 
-    // User (peserta) yang memilih skema ini
-    public function users(): HasMany
+    public function peserta(): HasMany
     {
-        return $this->hasMany(User::class, 'skema_id');
+        return $this->hasMany(Peserta::class, 'skema_id');
     }
 }
